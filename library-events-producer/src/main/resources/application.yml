@@ -1,0 +1,46 @@
+spring:
+  profiles:
+    active: local
+---
+spring:
+  profiles: local
+  kafka:
+    template:
+      # Nota: Al establecer aquí el Topic por defecto, podemos usar el método "sendDefault" para el envío de eventos
+      # a Kafka desde el productor sin especificar en dicho método el nombre del Topic. Es decir, se configura
+      # KakfaTemplate para usar por defecto este Topic
+      default-topic: library-events
+    producer:
+      bootstrap-servers: localhost:29092,localhost:29093,localhost:29094
+      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        # Por defecto es 1(Confirmación de que el registro está almacenado correctamente en el broker leader)
+        # "all" -> Confirmación de que el registro está almacenado correctamente en el broker leader y está replicado
+        # en el resto de brokers del cluster
+        # "0" -> No hay confirmación -> No se recomienda
+        acks: all
+        # Valor por defecto: 2147483647(El máximo valor)
+        retries: 10
+    # Sólo es necesario cuando creamos el Topic programáticamente
+    admin:
+      properties:
+        bootstrap.servers: localhost:29092,localhost:29093,localhost:29094
+---
+# Ejemplo de propiedades para un entorno llamado "dev"
+spring:
+  profiles: dev
+  kafka:
+    producer:
+      bootstrap-servers: dev:9092,dev:9093,dev:9094
+      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+---
+# Ejemplo de propiedades para un entorno llamado "prod"
+spring:
+  profiles: prod
+  kafka:
+    producer:
+      bootstrap-servers: prod:9092,prod:9093,prod:9094
+      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
